@@ -1,31 +1,24 @@
 let body = document.getElementsByTagName("body")[0];
-let currentNumberImageFromUnsplash;
-let listOfImagesFromUnsplash = [];
+let currentNumberImageFromWeb;
+let listOfImagesFromWeb = [];
 
-export function listImages(currentSourceOfImages) {
+export function listImages() {
   let buttonRight = document.querySelector(".slide-next");
   let buttonLeft = document.querySelector(".slide-prev");
 
   let finishAnimation = true;
 
-  if (currentSourceOfImages == "github") {
-    buttonLeft.addEventListener("click", () =>
-      changeImage("left", finishAnimation)
-    );
-    buttonRight.addEventListener("click", () =>
-      changeImage("right", finishAnimation)
-    );
-  } else if (currentSourceOfImages == "unsplash") {
-    buttonLeft.addEventListener("click", () =>
-      changeImagesFromUnsplash("left", finishAnimation)
-    );
-    buttonRight.addEventListener("click", () =>
-      changeImagesFromUnsplash("right", finishAnimation)
-    );
-  }
+  buttonLeft.addEventListener("click", () =>
+    changeImages("left", finishAnimation)
+  );
+  buttonRight.addEventListener("click", () =>
+    changeImages("right", finishAnimation)
+  );
 }
 
-export function managePicture(currentSourceOfImages, timeOfDay) {
+export function managePicture() {
+  let currentSourceOfImages = getCurrentSourceOfImages();
+  let timeOfDay = localStorage.getItem("timeOfDay");
   if (currentSourceOfImages == "github") {
     let baseLinkPictures =
       "https://raw.githubusercontent.com/Dairin-dei/stage1-tasks/assets/images/";
@@ -37,130 +30,253 @@ export function managePicture(currentSourceOfImages, timeOfDay) {
       "/" +
       String(randomDigit).padStart(2, "0") +
       ".jpg";
-    body.style.backgroundImage = "url(" + randomPicture + ")";
-    body.style.backgroundSize = "cover";
-  } else if (currentSourceOfImages == "unsplash") {
+    setBg(randomPicture);
+  } else {
     getLinkToImage();
   }
 }
 
-export function changeImage(direction, finishAnimation) {
-  if (finishAnimation) {
-    finishAnimation = false;
+export async function changeImages(direction, finishAnimation) {
+  let currentSourceOfImages = getCurrentSourceOfImages();
 
-    let baseLinkPictures =
-      "https://raw.githubusercontent.com/Dairin-dei/stage1-tasks/assets/images/";
-    let regexp = /(\w+)(?:\/)(\d+)(?:\.\w+"\))$/;
+  if (currentSourceOfImages == "github") {
+    if (finishAnimation) {
+      finishAnimation = false;
+      let timeOfDay = localStorage.getItem("timeOfDay");
 
-    let timeOfDay = body.style.backgroundImage.match(regexp)[1];
+      let baseLinkPictures =
+        "https://raw.githubusercontent.com/Dairin-dei/stage1-tasks/assets/images/";
+      let regexp = /(\w+)(?:\/)(\d+)(?:\.\w+"\))$/;
 
-    let currentNumber = Number(body.style.backgroundImage.match(regexp)[2]);
+      let currentNumber = Number(body.style.backgroundImage.match(regexp)[2]);
 
-    let nextNumber;
-    if (direction == "left") {
-      nextNumber =
-        Number(currentNumber) == 1
-          ? 20
-          : String(currentNumber - 1).padStart(2, "0");
-    } else {
-      nextNumber =
-        Number(currentNumber) == 20
-          ? "01"
-          : String(currentNumber + 1).padStart(2, "0");
-    }
-
-    body.style.backgroundImage =
-      "url(" + baseLinkPictures + timeOfDay + "/" + nextNumber + ".jpg)";
-    body.style.backgroundSize = "cover";
-    finishAnimation = true;
-  }
-}
-
-export async function changeImagesFromUnsplash(direction, finishAnimation) {
-  let countOfImagesFromUnsplash = "0";
-  if (finishAnimation) {
-    if (localStorage.getItem("countOfImagesFromUnsplash") != null) {
-      if (localStorage.getItem("countOfImagesFromUnsplash") != undefined) {
-        countOfImagesFromUnsplash = localStorage.getItem(
-          "countOfImagesFromUnsplash"
-        );
-      }
-    }
-
-    if (
-      listOfImagesFromUnsplash.length == 0 ||
-      countOfImagesFromUnsplash == "0"
-    ) {
-      listOfImagesFromUnsplash = [];
-      const getAsyncUnsplash = getLinksToImages(listOfImagesFromUnsplash);
-      await getAsyncUnsplash;
-      let randomDigit = Math.floor(Math.random() * 20) + 1;
-
-      body.style.backgroundImage =
-        "url(" + listOfImagesFromUnsplash[randomDigit] + ")";
-      body.style.backgroundSize = "cover";
-      currentNumberImageFromUnsplash = randomDigit;
-      finishAnimation = true;
-    } else {
       let nextNumber;
       if (direction == "left") {
         nextNumber =
-          currentNumberImageFromUnsplash == 1
+          Number(currentNumber) == 1
             ? 20
-            : currentNumberImageFromUnsplash - 1;
+            : String(currentNumber - 1).padStart(2, "0");
       } else {
         nextNumber =
-          currentNumberImageFromUnsplash == 20
-            ? 1
-            : currentNumberImageFromUnsplash + 1;
+          Number(currentNumber) == 20
+            ? "01"
+            : String(currentNumber + 1).padStart(2, "0");
       }
-      currentNumberImageFromUnsplash = nextNumber;
 
-      body.style.backgroundImage =
-        "url(" + listOfImagesFromUnsplash[nextNumber] + ")";
-      body.style.backgroundSize = "cover";
+      setBg(
+        baseLinkPictures +
+          (timeOfDay == "day" ? "afternoon" : timeOfDay) +
+          "/" +
+          nextNumber +
+          ".jpg"
+      );
+
       finishAnimation = true;
+    }
+  } else {
+    let countOfImagesFromWeb = "0";
+    if (finishAnimation) {
+      if (localStorage.getItem("countOfImagesFromWeb") != null) {
+        if (localStorage.getItem("countOfImagesFromWeb") != undefined) {
+          countOfImagesFromWeb = localStorage.getItem("countOfImagesFromWeb");
+        }
+      }
+
+      if (listOfImagesFromWeb.length == 0 || countOfImagesFromWeb == "0") {
+        listOfImagesFromWeb = [];
+        const getAsyncWeb = getLinksToImages(listOfImagesFromWeb);
+        await getAsyncWeb;
+        let numberCountOfImagesFromWeb = Number(
+          localStorage.getItem("countOfImagesFromWeb")
+        );
+        let randomDigit =
+          Math.floor(Math.random() * numberCountOfImagesFromWeb) + 1;
+
+        setBg(listOfImagesFromWeb[randomDigit]);
+
+        currentNumberImageFromWeb = randomDigit;
+        finishAnimation = true;
+      } else {
+        let nextNumber;
+        let numberCountOfImagesFromWeb = Number(
+          localStorage.getItem("countOfImagesFromWeb")
+        );
+        if (direction == "left") {
+          nextNumber =
+            currentNumberImageFromWeb == 0
+              ? numberCountOfImagesFromWeb - 1
+              : currentNumberImageFromWeb - 1;
+        } else {
+          nextNumber =
+            currentNumberImageFromWeb == numberCountOfImagesFromWeb - 1
+              ? 0
+              : currentNumberImageFromWeb + 1;
+        }
+        currentNumberImageFromWeb = nextNumber;
+
+        setBg(listOfImagesFromWeb[nextNumber]);
+
+        finishAnimation = true;
+      }
     }
   }
 }
 
 export async function getLinkToImage() {
-  let tagForImages;
+  let tagForImages = localStorage.getItem("timeOfDay");
+  let spanError = document.querySelector(".error");
+  let inputTag = document.querySelector(".name-for-images");
+
   if (localStorage.getItem("tagForImages") != null) {
     if (localStorage.getItem("tagForImages") != undefined) {
       tagForImages = localStorage.getItem("tagForImages");
     }
   }
-  const url =
-    "https://api.unsplash.com/photos/random?orientation=landscape&query=" +
-    tagForImages +
-    "&client_id=gwgvrGWZVCQCBSmGoolAzqScbmx7zvN2Wde1gFFxrzw";
-  const res = await fetch(url);
-  const data = await res.json();
-  if (data.urls.regular != null) {
-    body.style.backgroundImage = "url(" + data.urls.regular + ")";
+  let currentLanguage = localStorage.getItem("userLanguage");
+  let currentSourceOfImages = getCurrentSourceOfImages();
+  if (currentSourceOfImages == "unsplash") {
+    const url =
+      "https://api.unsplash.com/photos/random?orientation=landscape&query=" +
+      tagForImages +
+      "&client_id=gwgvrGWZVCQCBSmGoolAzqScbmx7zvN2Wde1gFFxrzw";
+    const res = await fetch(url);
+    const data = await res.json();
+    try {
+      if (data.urls.regular != null) {
+        setBg(data.urls.regular);
+      }
+    } catch (error) {
+      if (data.errors.length != 0) {
+        if (currentLanguage == "english") {
+          spanError.innerHTML =
+            "Unfortunately, there's no images with this tag...";
+        } else {
+          spanError.innerHTML =
+            "К сожалению, изображений с подобным тегом не найдено...";
+        }
+        setTimeout(() => {
+          spanError.innerHTML = "";
+        }, 2000);
+
+        tagForImages = localStorage.getItem("timeOfDay");
+        inputTag.value = tagForImages;
+        localStorage.setItem("tagForImages", tagForImages);
+        const url =
+          "https://api.unsplash.com/photos/random?orientation=landscape&query=" +
+          tagForImages +
+          "&client_id=gwgvrGWZVCQCBSmGoolAzqScbmx7zvN2Wde1gFFxrzw";
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.urls.regular != null) {
+          setBg(data.urls.regular);
+        }
+      }
+    }
+  } else {
+    const url =
+      "https://www.flickr.com/services/rest/?method=flickr.photos.search&per_page=1&api_key=ad4eb58274b41eca2b13e42b39fce4e8&tags=" +
+      tagForImages +
+      "&extras=url_l&format=json&nojsoncallback=1";
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.photos.photo.length > 0) {
+      if (data.photos.photo[0].url_l != null) {
+        setBg(data.photos.photo[0].url_l);
+      }
+    } else {
+      if (currentLanguage == "english") {
+        spanError.innerHTML =
+          "Unfortunately, there's no images with this tag...";
+      } else {
+        spanError.innerHTML =
+          "К сожалению, изображений с подобным тегом не найдено...";
+      }
+      setTimeout(() => {
+        spanError.innerHTML = "";
+      }, 2000);
+
+      tagForImages = localStorage.getItem("timeOfDay");
+      inputTag.value = tagForImages;
+      localStorage.setItem("tagForImages", tagForImages);
+      const url =
+        "https://www.flickr.com/services/rest/?method=flickr.photos.search&per_page=1&api_key=ad4eb58274b41eca2b13e42b39fce4e8&tags=" +
+        tagForImages +
+        "&extras=url_l&format=json&nojsoncallback=1";
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.photos.photo[0].url_l != null) {
+        setBg(data.photos.photo[0].url_l);
+      }
+    }
   }
 }
 
 export async function getLinksToImages() {
-  let tagForImages;
+  let tagForImages = localStorage.getItem("timeOfDay");
   if (localStorage.getItem("tagForImages") != null) {
     if (localStorage.getItem("tagForImages") != undefined) {
       tagForImages = localStorage.getItem("tagForImages");
     }
   }
-  console.log("download");
-  const url =
-    "https://api.unsplash.com/search/photos?orientation=landscape&page=1&per_page=20&query=" +
-    tagForImages +
-    "&client_id=gwgvrGWZVCQCBSmGoolAzqScbmx7zvN2Wde1gFFxrzw";
-  const res = await fetch(url);
-  const data = await res.json();
+  let currentSourceOfImages = getCurrentSourceOfImages();
+  if (currentSourceOfImages == "unsplash") {
+    const url =
+      "https://api.unsplash.com/search/photos?orientation=landscape&page=1&per_page=20&query=" +
+      tagForImages +
+      "&client_id=gwgvrGWZVCQCBSmGoolAzqScbmx7zvN2Wde1gFFxrzw";
+    const res = await fetch(url);
+    const data = await res.json();
 
-  if (data.results.length != null) {
-    for (let i = 0; i < data.results.length; i++) {
-      listOfImagesFromUnsplash.push(data.results[i].urls.regular);
+    if (data.results.length != null) {
+      listOfImagesFromWeb = [];
+      for (let i = 0; i < data.results.length; i++) {
+        listOfImagesFromWeb.push(data.results[i].urls.regular);
+      }
+      localStorage.setItem(
+        "countOfImagesFromWeb",
+        String(listOfImagesFromWeb.length)
+      );
+    }
+  } else {
+    const url =
+      "https://www.flickr.com/services/rest/?method=flickr.photos.search&per_page=20&api_key=ad4eb58274b41eca2b13e42b39fce4e8&tags=" +
+      tagForImages +
+      "&extras=url_l&format=json&nojsoncallback=1";
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.photos.photo.length != null) {
+      listOfImagesFromWeb = [];
+      for (let i = 0; i < data.photos.photo.length; i++) {
+        if (data.photos.photo[i].url_l != undefined) {
+          listOfImagesFromWeb.push(data.photos.photo[i].url_l);
+        }
+      }
+      localStorage.setItem(
+        "countOfImagesFromWeb",
+        String(listOfImagesFromWeb.length)
+      );
     }
   }
-  localStorage.setItem("countOfImagesFromUnsplash", "20");
+}
+
+export function getCurrentSourceOfImages() {
+  if (localStorage.getItem("currentSourceOfImages") != null) {
+    if (localStorage.getItem("currentSourceOfImages") != undefined) {
+      return localStorage.getItem("currentSourceOfImages");
+    } else {
+      return "github";
+    }
+  } else {
+    return "github";
+  }
+}
+
+function setBg(url) {
+  const img = new Image();
+  img.src = url;
+  img.onload = () => {
+    body.style.backgroundImage = "url(" + img.src + ")";
+  };
 }

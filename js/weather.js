@@ -1,27 +1,32 @@
-let currentLanguage;
-export function mainForWeather(currentLanguage) {
+export function mainForWeather() {
   let city = document.querySelector(".city");
   let currentCity;
-  let oldCity;
+  let currentLanguage = "russian";
 
   document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("userLanguage") != null) {
+      if (localStorage.getItem("userLanguage") != undefined) {
+        currentLanguage = localStorage.getItem("userLanguage");
+      }
+    }
+
     if (!localStorage.getItem("city")) {
       if (currentLanguage == "english") {
-        currentCity = "Minsk";
+        currentCity = "Moscow";
       } else {
-        currentCity = "Минск";
+        currentCity = "Москва";
       }
     } else {
       currentCity = localStorage.getItem("city");
     }
     city.value = currentCity;
-    getWeather(currentCity, currentLanguage);
+    getWeather(currentCity);
   });
 
   city.addEventListener("change", () => {
     if (city.value.trim().length > 0) {
       currentCity = city.value.trim();
-      getWeather(currentCity, currentLanguage);
+      getWeather(currentCity);
       localStorage.setItem("city", currentCity);
     } else {
       if (currentLanguage == "english") {
@@ -38,13 +43,14 @@ export function mainForWeather(currentLanguage) {
   });
 }
 
-export async function getWeather(city, currentLanguage) {
+export async function getWeather(city) {
   const weatherError = document.querySelector(".weather-error");
   const weatherIcon = document.querySelector(".weather-icon");
   const temperature = document.querySelector(".temperature");
   const weatherDescription = document.querySelector(".weather-description");
   const weatherHumidity = document.querySelector(".humidity");
   const weatherWind = document.querySelector(".wind");
+  let currentLanguage = localStorage.getItem("userLanguage");
   let url;
 
   if (currentLanguage == "english") {

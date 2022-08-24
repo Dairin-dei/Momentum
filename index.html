@@ -20,20 +20,26 @@
                 <button class="play player-icon"></button>
                 <button class="play-next player-icon"></button>
               </div>
-              <input
-                class="range timeline"
-                type="range"
-                name="trek-length"
-                id="id-trek-length"
-              />
-              <span class="time-trek"></span>
-              <button class="btn-sound sound player-icon"></button>
-              <input
-                class="range soundlevel"
-                type="range"
-                name="trek-sound"
-                id="id-trek-sound"
-              />
+              <div class="wrapper">
+                <div class="div-video">
+                  <input
+                    class="range timeline"
+                    type="range"
+                    name="trek-length"
+                    id="id-trek-length"
+                  />
+                  <span class="time-trek"></span>
+                </div>
+                <div class="div-sound">
+                  <button class="btn-sound sound player-icon"></button>
+                  <input
+                    class="range soundlevel"
+                    type="range"
+                    name="trek-sound"
+                    id="id-trek-sound"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -56,33 +62,172 @@
         <button class="slide-prev slider-icon"></button>
         <button class="slide-next slider-icon"></button>
       </div>
-      <time class="time" id="idTime"></time>
-      <date class="date"></date>
+      <p class="time" id="idTime"></p>
+      <p class="date"></p>
       <div class="greeting-container smoothing">
         <span class="greeting"></span>
         <input type="text" class="name" />
       </div>
     </main>
     <footer class="footer">
-      <div class="languages">
-        <button class="button-lang lang-eng">Eng</button>
-        <button class="button-lang lang-rus">Rus</button>
-      </div>
-      <div class="source-of-images">
-        <button class="button-source-images source-images-github">
-          GitHub
-        </button>
-        <button class="button-source-images source-images-unsplash">
-          Unsplash
-        </button>
-      </div>
-      <input type="text" name="nameTag" class="name-for-images" />
       <button class="change-quote"></button>
       <div>
         <div class="quote"></div>
         <div class="author"></div>
       </div>
+
+      <ul class="bottom-footer">
+        <li class="li-footer li-first">
+          <img
+            class="button-settings"
+            src="./assets/svg/settings.svg"
+            alt=""
+            width="30"
+            height="30"
+          />
+        </li>
+        <li class="li-footer text-body">
+          <h1>2021&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h1>
+        </li>
+      </ul>
     </footer>
+    <div class="settings">
+      <div class="close-settings">
+        <span class="close left-side"></span>
+        <span class="close right-side"></span>
+      </div>
+      <div class="wrapper-vertical">
+        <div class="wrapper-settings">
+          <div class="languages">
+            <h4 class="change-language">Change language</h4>
+            <button class="button-lang lang-eng">
+              <img
+                class="image-lang"
+                src="./assets/svg/english.svg"
+                alt=""
+                width="40"
+                height="20"
+              />
+            </button>
+            <button class="button-lang lang-rus">
+              <img
+                class="image-lang"
+                src="./assets/svg/russian.svg"
+                alt=""
+                width="40"
+                height="20"
+              />
+            </button>
+          </div>
+          <div class="source-of-images">
+            <div class="buttons-source-of-images">
+              <h4 class="change-source">Change source for images</h4>
+              <button class="button-source-images source-images-github">
+                <img
+                  class="image-source-images"
+                  src="./assets/svg/github.png"
+                  alt=""
+                />
+                GitHub
+              </button>
+              <button class="button-source-images source-images-unsplash">
+                <img
+                  class="image-source-images"
+                  src="./assets/svg/unsplash.png"
+                  alt=""
+                />
+                Unsplash
+              </button>
+              <button class="button-source-images source-images-flickr">
+                <img
+                  class="image-source-images"
+                  src="./assets/svg/flickr.png"
+                  alt=""
+                />
+                Flickr
+              </button>
+            </div>
+            <label class="label-tag" for="idnameTag"
+              >Change theme of images
+            </label>
+            <input
+              type="text"
+              name="nameTag"
+              class="name-for-images"
+              id="idnameTag"
+            />
+            <span class="error"></span>
+          </div>
+        </div>
+        <div class="visibility-settings">
+          <h4 class="hide-show">Hide / show elements on screen</h4>
+          <div class="wrapper-visibility">
+            <div class="div-label">
+              <input
+                type="checkbox"
+                name="ch-time"
+                class="checkbox"
+                id="id-ch-time"
+                value="1"
+              />
+              <label for="id-ch-time" class="lb-ch-time">Hide time</label>
+            </div>
+            <div class="label">
+              <input
+                type="checkbox"
+                name="ch-date"
+                class="checkbox"
+                id="id-ch-date"
+                value="2"
+              />
+              <label for="id-ch-date" class="lb-ch-date">Hide date</label>
+            </div>
+            <div class="div-label">
+              <input
+                type="checkbox"
+                name="ch-greeting"
+                class="checkbox"
+                id="id-ch-greeting"
+                value="3"
+              />
+              <label for="id-ch-greeting" class="lb-ch-greeting">
+                Hide greeting
+              </label>
+            </div>
+            <div class="div-label">
+              <input
+                type="checkbox"
+                name="ch-quotes"
+                class="checkbox"
+                id="id-ch-quotes"
+              />
+
+              <label for="id-ch-quotes" class="lb-ch-quotes">Hide quotes</label>
+            </div>
+            <div class="div-label">
+              <input
+                type="checkbox"
+                name="ch-forecast"
+                class="checkbox"
+                id="id-ch-forecast"
+              />
+              <label for="id-ch-forecast" class="lb-ch-forecast"
+                >Hide forecast
+              </label>
+            </div>
+            <div class="div-label">
+              <input
+                type="checkbox"
+                name="ch-player"
+                class="checkbox"
+                id="id-ch-player"
+              />
+              <label for="id-ch-player" class="lb-ch-player">Hide player</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="script.js"></script>
   </body>
 </html>

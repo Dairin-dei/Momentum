@@ -1,16 +1,17 @@
-export function setQuoteOnTheScreen(currentLanguage) {
+export function setQuoteOnTheScreen() {
   let buttonChangeQuote = document.querySelector(".change-quote");
 
-  getQuotes(currentLanguage);
+  getQuotes();
 
-  buttonChangeQuote.addEventListener("click", () => getQuotes(currentLanguage));
+  buttonChangeQuote.addEventListener("click", () => getQuotes());
 }
 
-export async function getQuotes(currentLanguage) {
+export async function getQuotes() {
   let quote = document.querySelector(".quote");
   let author = document.querySelector(".author");
   let quotes;
   let count;
+  let currentLanguage = localStorage.getItem("userLanguage");
 
   if (currentLanguage == "english") {
     quotes = "./assets/quotes/quotes.json";
@@ -22,7 +23,7 @@ export async function getQuotes(currentLanguage) {
   const data = await res.json();
 
   count = JSON.parse(JSON.stringify(data)).length;
-  let currentQuote = Math.floor(Math.random() * 10) + 1;
+  let currentQuote = Math.floor(Math.random() * count) + 1;
   try {
     quote.textContent = data[currentQuote].text;
     author.textContent = data[currentQuote].author;

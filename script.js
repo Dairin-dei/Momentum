@@ -4,60 +4,65 @@ import * as weatherFn from "./js/weather.js";
 import * as quotesFn from "./js/quotes.js";
 import * as audioFn from "./js/audio.js";
 import * as playlistFn from "./js/playlist.js";
-import * as languagesFn from "./js/languages.js";
 import * as settingsFn from "./js/settings.js";
 
-let currentLanguage;
 let timeOfDay;
 let oldTimeOfDay;
 let currentGreeting;
 let beginDay;
-let source;
-let currentSourceOfImages;
-let tagForImages;
-
-languagesFn.manageLanguage();
-currentLanguage = languagesFn.landingLanguage;
+let inputTag = document.querySelector(".name-for-images");
+let currentLanguage = "russian";
 
 setBaseParameters();
-weatherFn.mainForWeather(currentLanguage);
-quotesFn.setQuoteOnTheScreen(currentLanguage);
+weatherFn.mainForWeather();
+quotesFn.setQuoteOnTheScreen();
 audioFn.audioFunctions(playlistFn.gatherMusic());
 manageLanguageChange();
+settingsFn.setEventListenersVisibility();
+settingsFn.showSettings();
 
 function setBaseParameters() {
-  let tagName = document.querySelector(".name");
-  localStorage.setItem("countOfImagesFromUnsplash", "0");
-  tagName.placeholder = "[Enter name]";
-  datetimeFn.manageName(tagName);
-  setDateTimeGreetingOnScreen();
-  timeOfDay = datetimeFn.defineTimeOfDay();
-  localStorage.setItem("tagForImages", timeOfDay);
-
-  ////
-  /* if (localStorage.getItem("tagForImages") != null) {
-    if (localStorage.getItem("tagForImages") != undefined) {
-      tagForImages = localStorage.getItem("tagForImages");
+  if (localStorage.getItem("userLanguage") != null) {
+    if (localStorage.getItem("userLanguage") != undefined) {
+      currentLanguage = localStorage.getItem("userLanguage");
+    } else {
+      localStorage.setItem("userLanguage", "english");
     }
-  }*/
+  } else {
+    localStorage.setItem("userLanguage", "english");
+  }
+
+  let tagName = document.querySelector(".name");
+  if (currentLanguage == "english") {
+    tagName.placeholder = "[Enter name]";
+  } else {
+    tagName.placeholder = "[Познакомимся?]";
+  }
+
   if (localStorage.getItem("userName") != null) {
     if (localStorage.getItem("userName") != undefined) {
       tagName.value = localStorage.getItem("userName");
     }
   }
-  if (localStorage.getItem("currentSourceOfImages") != null) {
-    if (localStorage.getItem("currentSourceOfImages") != undefined) {
-      currentSourceOfImages = localStorage.getItem("currentSourceOfImages");
-    } else {
-      currentSourceOfImages = "github";
-    }
-  } else {
-    currentSourceOfImages = "github";
-  }
-  ////
 
-  imagesFn.listImages(currentSourceOfImages);
-  imagesFn.managePicture(currentSourceOfImages, timeOfDay);
+  if (localStorage.getItem("currentSourceOfImages") == null) {
+    localStorage.setItem("currentSourceOfImages", "github");
+  }
+
+  if (localStorage.getItem("tagForImages") != null) {
+    if (localStorage.getItem("tagForImages") != undefined) {
+      inputTag.value = localStorage.getItem("tagForImages");
+    }
+  }
+
+  localStorage.setItem("countOfImagesFromWeb", "0");
+
+  datetimeFn.manageName(tagName);
+  setDateTimeGreetingOnScreen();
+
+  imagesFn.listImages();
+  imagesFn.managePicture();
+  settingsFn.changeLanguage();
 }
 
 function setDateTimeGreetingOnScreen() {
@@ -68,42 +73,10 @@ function setDateTimeGreetingOnScreen() {
   let nowDay = new Date();
   let difference = (nowDay - beginDay) / 3600000;
   timeOfDay = datetimeFn.defineTimeOfDay(difference);
-  tagGreeting.textContent = datetimeFn.defineGreeting(
-    timeOfDay,
-    currentLanguage
-  );
+  localStorage.setItem("timeOfDay", timeOfDay);
+  tagGreeting.textContent = datetimeFn.defineGreeting();
   oldTimeOfDay = timeOfDay;
   getData();
-}
-
-function manageLanguageChange() {
-  let btnLangEng = document.querySelector(".lang-eng");
-  let btnLangRus = document.querySelector(".lang-rus");
-  let city = document.querySelector(".city");
-
-  btnLangEng.addEventListener("click", () => {
-    currentLanguage = "english";
-    datetimeFn.changeLanguage(
-      beginDay,
-      currentLanguage,
-      timeOfDay,
-      currentGreeting
-    );
-    weatherFn.getWeather(city.value, currentLanguage);
-    quotesFn.getQuotes(currentLanguage);
-  });
-  btnLangRus.addEventListener("click", () => {
-    currentLanguage = "russian";
-    datetimeFn.changeLanguage(
-      beginDay,
-      currentLanguage,
-      timeOfDay,
-      currentGreeting
-    );
-
-    weatherFn.getWeather(city.value, currentLanguage);
-    quotesFn.getQuotes(currentLanguage);
-  });
 }
 
 function getData() {
@@ -114,8 +87,10 @@ function getData() {
   let tagGreeting = document.querySelector(".greeting");
   let tagDate = document.querySelector(".date");
   let t;
+  let currentLanguage = localStorage.getItem("userLanguage");
 
   tagTime.textContent = currentDate.toLocaleTimeString();
+  tagTime.datetime = currentDate;
 
   const options = {
     weekday: "long",
@@ -135,9 +110,10 @@ function getData() {
   timeOfDay = datetimeFn.defineTimeOfDay(difference);
 
   if (oldTimeOfDay != timeOfDay) {
+    localStorage.setItem("timeOfDay", timeOfDay);
     setTimeout(() => {
-      imagesFn.managePicture(timeOfDay, source);
-      currentGreeting = datetimeFn.defineGreeting(timeOfDay, currentLanguage);
+      imagesFn.managePicture();
+      currentGreeting = datetimeFn.defineGreeting();
       tagGreetingContainer.classList.add("fade");
       setTimeout(() => {
         tagGreeting.textContent = currentGreeting;
@@ -153,31 +129,88 @@ function getData() {
   }, 1000);
 }
 
+function manageLanguageChange() {
+  let btnLangEng = document.querySelector(".lang-eng");
+  let btnLangRus = document.querySelector(".lang-rus");
+  let city = document.querySelector(".city");
+
+  if (localStorage.getItem("userLanguage") == "english") {
+    btnLangRus.classList.remove("lang-second");
+    btnLangEng.classList.add("lang-second");
+  } else {
+    btnLangEng.classList.remove("lang-second");
+    btnLangRus.classList.add("lang-second");
+  }
+
+  btnLangEng.addEventListener("click", () => {
+    if (city.value == "Минск") {
+      city.value = "Minsk";
+    }
+    localStorage.setItem("userLanguage", "english");
+
+    datetimeFn.changeLanguage(beginDay);
+    weatherFn.getWeather(city.value);
+    quotesFn.getQuotes();
+    settingsFn.changeLanguage();
+  });
+  btnLangRus.addEventListener("click", () => {
+    if (city.value == "Minsk") {
+      city.value = "Минск";
+    }
+    localStorage.setItem("userLanguage", "russian");
+    datetimeFn.changeLanguage(beginDay);
+
+    weatherFn.getWeather(city.value);
+    quotesFn.getQuotes();
+    settingsFn.changeLanguage();
+  });
+}
+
 let buttonGitHub = document.querySelector(".source-images-github");
 let buttonUnsplash = document.querySelector(".source-images-unsplash");
+let buttonFlickr = document.querySelector(".source-images-flickr");
+
 buttonGitHub.addEventListener("click", () => {
+  let currentSourceOfImages = imagesFn.getCurrentSourceOfImages();
   if (currentSourceOfImages != "github") {
     currentSourceOfImages = "github";
+    settingsFn.removeBorder();
+    settingsFn.addBorder(currentSourceOfImages);
     localStorage.setItem("currentSourceOfImages", currentSourceOfImages);
 
-    imagesFn.managePicture(currentSourceOfImages, timeOfDay);
+    imagesFn.managePicture();
   }
 });
 buttonUnsplash.addEventListener("click", () => {
+  let currentSourceOfImages = imagesFn.getCurrentSourceOfImages();
   if (currentSourceOfImages != "unsplash") {
     currentSourceOfImages = "unsplash";
+    settingsFn.removeBorder();
+    settingsFn.addBorder(currentSourceOfImages);
+    localStorage.setItem("currentSourceOfImages", currentSourceOfImages);
+
+    imagesFn.getLinkToImage();
+  }
+});
+buttonFlickr.addEventListener("click", () => {
+  let currentSourceOfImages = imagesFn.getCurrentSourceOfImages();
+  if (currentSourceOfImages != "flickr") {
+    currentSourceOfImages = "flickr";
+    settingsFn.removeBorder();
+    settingsFn.addBorder(currentSourceOfImages);
     localStorage.setItem("currentSourceOfImages", currentSourceOfImages);
 
     imagesFn.getLinkToImage();
   }
 });
 
-let inputTag = document.querySelector(".name-for-images");
-
 inputTag.addEventListener("change", () => {
-  if (currentSourceOfImages == "unsplash") {
+  let currentSourceOfImages = imagesFn.getCurrentSourceOfImages();
+  if (currentSourceOfImages == "github") {
+    imagesFn.managePicture();
+  } else {
     localStorage.setItem("tagForImages", inputTag.value);
     imagesFn.getLinkToImage(inputTag.value.trim());
-    localStorage.setItem("countOfImagesFromUnsplash", "0");
+    localStorage.setItem("countOfImagesFromWeb", "0");
   }
 });

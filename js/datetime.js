@@ -9,8 +9,10 @@ export function defineTimeOfDay(diff) {
     return "evening";
   }
 }
-export function defineGreeting(timeOfDay, currentLanguage) {
+export function defineGreeting() {
   let greetings;
+  let timeOfDay = localStorage.getItem("timeOfDay");
+  let currentLanguage = localStorage.getItem("userLanguage");
   if (currentLanguage == "english") {
     greetings = [
       "Good morning, ",
@@ -26,6 +28,7 @@ export function defineGreeting(timeOfDay, currentLanguage) {
       "Доброй ночи, ",
     ];
   }
+
   if (timeOfDay == "night") {
     return greetings[3];
   } else if (timeOfDay == "morning") {
@@ -37,27 +40,32 @@ export function defineGreeting(timeOfDay, currentLanguage) {
   }
 }
 
-export function changeLanguage(
-  beginDay,
-  currentLanguage,
-  timeOfDay,
-  currentGreeting
-) {
+export function changeLanguage(beginDay) {
   let tagGreetingContainer = document.querySelector(".greeting-container");
   let tagGreeting = document.querySelector(".greeting");
   let btnLangEng = document.querySelector(".lang-eng");
   let btnLangRus = document.querySelector(".lang-rus");
+  let currentLanguage = localStorage.getItem("userLanguage");
+  let tagName = document.querySelector(".name");
+
+  let currentGreeting;
 
   let currentDate = new Date();
   let difference = (currentDate - beginDay) / 3600000;
 
-  timeOfDay = defineTimeOfDay(difference);
-  currentGreeting = defineGreeting(timeOfDay, currentLanguage);
+  localStorage.setItem("timeOfDay", defineTimeOfDay(difference));
+  currentGreeting = defineGreeting();
 
   btnLangEng.classList.toggle("lang-second");
   btnLangRus.classList.toggle("lang-second");
 
   tagGreetingContainer.classList.add("fade");
+
+  if (currentLanguage == "english") {
+    tagName.placeholder = "[Enter name]";
+  } else {
+    tagName.placeholder = "[Познакомимся?]";
+  }
 
   setTimeout(() => {
     tagGreeting.textContent = currentGreeting;

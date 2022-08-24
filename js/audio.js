@@ -110,7 +110,6 @@ function createEventListeners(playList, audio) {
   }
 
   function playTrekByOne(e, index) {
-    console.log(e);
     if (e.offsetX <= 11) {
       if (currentTrekNumber != index) {
         currentTrekNumber = index;
@@ -218,7 +217,7 @@ function createEventListeners(playList, audio) {
   }
 
   function changeSoundlevel() {
-    if (audio.muted) {
+    if (!audio.muted) {
       audio.volume = soundlevel.value / 100;
     }
     setInputColor(soundlevel, soundlevel.value);
